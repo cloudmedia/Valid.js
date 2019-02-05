@@ -13,6 +13,7 @@
  * 64 = Require letters and numbers, at least one uppercase letter, and at least one symbol (default)
  * 
  */
+// Regex definitions:
 const onlyNumbers = /^\d+$/;
 const onlyLetters = /^[a-zA-Z]+$/;
 const hasNumber = /\d/;
@@ -20,6 +21,16 @@ const hasLetter = /[A-z]/;
 const hasUC = /[A-Z]/;
 const hasLC = /[a-z]/;
 const hasSym = /[^a-zA-Z0-9_]/;
+const rfc1123 = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+const reEmail = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+const reIPv4 = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+
+// Error messages appended to valLabel:
+const msgBadHostname = " is not a valid hostname.";
+const msgBadIPv4 = " is not a valid IPv4 address.";
+const msgBadEmail = " is not a valid email address.";
+const msgOnlyNumbers = " may only contain integer numbers.";
 
 class Valid
 {
@@ -95,26 +106,35 @@ class Valid
             var host = this.val.split(".");
             if (host.length != lvls) return this.setStatus(false);
         }
-        var regex = new RegExp(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/); // RFC 1123
-        return this.checkRE(regex);
+        var regex = new RegExp(rfc1123);
+        if (this.checkRE(regex))
+        {
+            return true;
+        }else{
+            this.message = this.valLabel + msgBadHostname;
+        }
     }
 
     isEmail()
     {
-        var regex = new RegExp(/^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i);
-        return this.checkRE(regex);
-    }
-
-    isFQDN()
-    {
-        var regex = new RegExp(/^((?:(?:(?:\w[\.\-\+]?)*)\w)+)((?:(?:(?:\w[\.\-\+]?){0,62})\w)+)\.(\w{2,6})$/);
-        return this.checkRE(regex);
+        var regex = new RegExp(reEmail);
+        if (this.checkRE(regex))
+        {
+            return true;
+        }else{
+            this.message = this.valLabel + msgBadEmail;
+        }
     }
 
     isIPv4()
     {
-        var regex = new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/);
-        return this.checkRE(regex);
+        var regex = new RegExp(reIPv4);
+        if (this.checkRE(regex))
+        {
+            return true;
+        }else{
+            this.message = this.valLabel + msgBadIPv4;
+        }
     }
 
     valPass()
@@ -204,6 +224,36 @@ class Valid
         if (len2 && this.val.length > len2)
         {
             this.message = this.valLabel + " must be fewer than " + len2 + " characters.";
+            return this.setStatus(false);
+        }
+        return this.setStatus(true);
+    }
+
+    isInt()
+    {
+        if (!this.re(onlyNumbers))
+        {
+            this.message = this.valLabel + msgOnlyNumbers;
+            return this.setStatus(false);
+        }else{
+            return this.setStatus(true);
+        }
+    }
+
+    isRange(r1, r2)
+    {
+        if (!this.isInt()) return false;
+        
+        r1 = parseInt(r1);
+        r2 = parseInt(r2);
+        if (this.val < r1)
+        {
+            this.message = this.valLabel + " must be greater than " + r1 + ".";
+            return this.setStatus(false);
+        }
+        if (this.val > r2)
+        {
+            this.message = this.valLabel + " must be less than " + r2 + ".";
             return this.setStatus(false);
         }
         return this.setStatus(true);
