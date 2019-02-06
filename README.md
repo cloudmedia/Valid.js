@@ -44,4 +44,10 @@ valid.setPassLen(8); // Minimum password length of 8 characters
 
 valid.valPass(); // returns true or false, also sets valid.message
                  //with error message, uses valid.valueLabel
+                 
+// Validate integer string
+valid.isInt(); // Returns true or false
+                 
+// Validate integer range
+valid.isRange(low, high); // Returns true or false. Low is >= operator and high is <=.
 ```
