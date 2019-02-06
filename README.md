@@ -1,11 +1,12 @@
 # Valid.js
+## A small javascript input validation class.
 
-A small javascript input validation class. Work in progress.
+### Constructor:
 
-Usage:
+```var valid = new Valid(valueToCheck [, valueLabel]);```
 
-var valid = new Valid(valueToCheck [, valueLabel]);
-
+### Methods:
+```
 // Check valid email address
 valid.isEmail(); // Returns true or false
 
@@ -32,6 +33,7 @@ valid.isLength(lengthMin [, lengthMax]) // Returns true or false, also sets vali
 * 64 = Require letters and numbers, at least one uppercase letter, and at least one symbol (default)
 * 
 **/
+```
 valid.setPassReq(64); // Sets to strongest requirement
 valid.setPassLen(8); // Minimum password length of 8 characters
 
