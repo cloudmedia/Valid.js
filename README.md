@@ -12,7 +12,8 @@
 
 #### Check valid hostname (levels is integer number of domains levels. For example google.com has 2 levels, where google has one; value of 0 does no level check):
 
-```valid.isHostname([numSegments]); // Returns true or false
+```
+valid.isHostname([numSegments]); // Returns true or false
                                  // Takes number of hostname segments as optional argument (default: 0)
                                  // 0 segments performs no segment check
 ```
@@ -21,7 +22,8 @@
 ```valid.isIPv4(); // Returns true or false```
 
 #### Validate length
-```valid.isLength(lengthMin [, lengthMax]) // Returns true or false, also sets valid.message
+```
+valid.isLength(lengthMin [, lengthMax]) // Returns true or false, also sets valid.message
                                         // with error message, uses valid.valueLabel
 ```
 
