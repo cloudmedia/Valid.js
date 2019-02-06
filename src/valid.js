@@ -99,12 +99,13 @@ class Valid
         return true;
     }
 
-    isHostname(lvls = 0)
+    isHostname(segs = 0)
     {
-        if (lvls > 0)
+        // Validate number of hostname segments (names separated by dots)
+        if (segs > 0)
         {
             var host = this.val.split(".");
-            if (host.length != lvls) return this.setStatus(false);
+            if (host.length != segs) return this.setStatus(false);
         }
         var regex = new RegExp(rfc1123);
         if (this.checkRE(regex))
