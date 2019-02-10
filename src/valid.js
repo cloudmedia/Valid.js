@@ -18,12 +18,14 @@ const onlyNumbers = /^\d+$/;
 const onlyLetters = /^[a-zA-Z]+$/;
 const hasNumber = /\d/;
 const hasLetter = /[A-z]/;
+const beginsWithLetter = /^[a-zA-Z]/;
 const hasUC = /[A-Z]/;
 const hasLC = /[a-z]/;
 const hasSym = /[^a-zA-Z0-9_]/;
 const rfc1123 = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const reEmail = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
 const reIPv4 = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const reUser = /^[a-zA-Z0-9][\w\.]+[a-zA-Z0-9]$/; // Username may contain letters, numbers--and underscore and dot, but only in the middle
 
 
 // Error messages appended to valLabel:
@@ -31,6 +33,7 @@ const msgBadHostname = " is not a valid hostname.";
 const msgBadIPv4 = " is not a valid IPv4 address.";
 const msgBadEmail = " is not a valid email address.";
 const msgOnlyNumbers = " may only contain integer numbers.";
+const msgBadUser = " may only contain letters and numbers--and underscore (_) and dot (.), but only in the middle.";
 
 class Valid
 {
@@ -99,13 +102,39 @@ class Valid
         return true;
     }
 
+    chkSegment(s)
+    {
+        var regex = new RegExp(beginsWithLetter);
+        if (!regex.exec(s))
+        {
+            this.message = this.valLabel + " segments must begin with a letter!";
+            return this.setStatus(false);
+        }else{
+            return true;
+        }
+    }
+
     isHostname(segs = 0)
     {
         // Validate number of hostname segments (names separated by dots)
         if (segs > 0)
         {
+            var seg_disp = " segment, with no dots (.)";
+            if (segs == 2) seg_disp = " segments, separated by a dot (.)";
+            if (segs > 2) seg_disp = " segments, separated by dots (.)";
             var host = this.val.split(".");
-            if (host.length != segs) return this.setStatus(false);
+            if (host.length != segs)
+            {
+                this.message = this.valLabel + " must have exactly " + segs + seg_disp;
+                return this.setStatus(false);
+            }
+            for (var i = 0; i < host.length; i++)
+            {
+                if (!this.chkSegment(host[i]))
+                {
+                    return false;
+                }
+            }
         }
         var regex = new RegExp(rfc1123);
         if (this.checkRE(regex))
@@ -124,6 +153,17 @@ class Valid
             return true;
         }else{
             this.message = this.valLabel + msgBadEmail;
+        }
+    }
+
+    isUsername()
+    {
+        var regex = new RegExp(reUser);
+        if (this.checkRE(regex))
+        {
+            return true;
+        }else{
+            this.message = this.valLabel + msgBadUser;
         }
     }
 
