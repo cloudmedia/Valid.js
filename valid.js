@@ -34,6 +34,7 @@ const msgBadIPv4 = " is not a valid IPv4 address.";
 const msgBadEmail = " is not a valid email address.";
 const msgOnlyNumbers = " may only contain integer numbers.";
 const msgBadUser = " may only contain letters and numbers--and underscore (_) and dot (.), but only in the middle.";
+const msgBadPhone = " is not a valid phone number.";
 
 class Valid
 {
@@ -132,16 +133,17 @@ class Valid
             {
                 if (!this.chkSegment(host[i]))
                 {
-                    return false;
+                    return this.setStatus(false);
                 }
             }
         }
         var regex = new RegExp(rfc1123);
         if (this.checkRE(regex))
         {
-            return true;
+            return this.setStatus(true);
         }else{
             this.message = this.valLabel + msgBadHostname;
+            return this.setStatus(false);
         }
     }
 
@@ -150,9 +152,34 @@ class Valid
         var regex = new RegExp(reEmail);
         if (this.checkRE(regex))
         {
-            return true;
+            return this.setStatus(true);
         }else{
             this.message = this.valLabel + msgBadEmail;
+            return this.setStatus(false);
+        }
+    }
+
+    isPhone(international)
+    {
+        if (typeof international === typeof undefined) international = false;
+        var num = this.val.replace(/\D/g,'');
+        if (international)
+        {
+            if (num.length >= 10 && num.length <= 15)
+            {
+                return this.setStatus(true);
+            }else{
+                this.message = this.valLabel + msgBadPhone;
+                return this.setStatus(false);
+            }
+        }else{
+            if (num.length == 10)
+            {
+                return this.setStatus(true);
+            }else{
+                this.message = this.valLabel + msgBadPhone;
+                return this.setStatus(false);
+            }
         }
     }
 
@@ -161,9 +188,10 @@ class Valid
         var regex = new RegExp(reUser);
         if (this.checkRE(regex))
         {
-            return true;
+            return this.setStatus(true);
         }else{
             this.message = this.valLabel + msgBadUser;
+            return this.setStatus(false);
         }
     }
 
@@ -172,9 +200,10 @@ class Valid
         var regex = new RegExp(reIPv4);
         if (this.checkRE(regex))
         {
-            return true;
+            return this.setStatus(true);
         }else{
             this.message = this.valLabel + msgBadIPv4;
+            return this.setStatus(false);
         }
     }
 
